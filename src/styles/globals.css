@@ -1,0 +1,93 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-black text-white;
+  }
+}
+
+@layer components {
+  .container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+  
+  .section {
+    @apply py-16 md:py-24;
+  }
+  
+  .btn {
+    @apply px-6 py-3 rounded-md font-medium transition-colors duration-300 inline-block;
+  }
+  
+  .btn-primary {
+    @apply bg-accent hover:bg-accent/80 text-white;
+  }
+  
+  .card {
+    @apply bg-gray-800 rounded-lg overflow-hidden shadow-lg transition-transform duration-300 hover:shadow-xl;
+  }
+  
+  .nav-link {
+    @apply text-gray-300 hover:text-white transition-colors duration-300;
+  }
+  
+  .active-nav-link {
+    @apply text-accent;
+  }
+  
+  .text-accent {
+    @apply text-[#3b82f6];
+  }
+  
+  .bg-accent {
+    @apply bg-[#3b82f6];
+  }
+  
+  .prose {
+    @apply max-w-[65ch] text-white;
+  }
+  
+  .prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
+    @apply text-white mt-8 mb-4;
+  }
+  
+  .prose p, .prose ul, .prose ol {
+    @apply mb-6;
+  }
+  
+  .prose a {
+    @apply text-[#3b82f6] underline;
+  }
+  
+  .prose pre {
+    @apply bg-gray-800 rounded-md p-4 overflow-x-auto;
+  }
+  
+  .prose code {
+    @apply bg-gray-800 px-1 py-0.5 rounded;
+  }
+  
+  .prose pre code {
+    @apply bg-transparent p-0;
+  }
+}
+
+/* 自定义滚动条 */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #3b82f6;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #2563eb;
+} 
