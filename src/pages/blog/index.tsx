@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { GetStaticProps } from 'next';
 import Layout from '@/components/Layout';
 import BlogCard from '@/components/BlogCard';
@@ -15,110 +15,112 @@ const BlogPage = ({ posts, tags }: BlogPageProps) => {
   const [activeCategory, setActiveCategory] = useState('全部');
   const [searchQuery, setSearchQuery] = useState('');
 
-  // 根据分类和搜索过滤博客文章
   const filteredPosts = posts.filter((post) => {
-    // 分类过滤
     const categoryMatch = activeCategory === '全部' || post.tags.includes(activeCategory);
-
-    // 搜索过滤
     const searchMatch = searchQuery === '' ||
       post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       post.excerpt.toLowerCase().includes(searchQuery.toLowerCase()) ||
       post.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
-
     return categoryMatch && searchMatch;
   });
 
   return (
     <Layout title="博客 | 王浩的个人博客" description="分享游戏开发、Unity技术和工具开发的经验与见解">
-      <section className="py-20 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="min-h-screen pt-28 pb-20 bg-[var(--bg-primary)]">
+        <div className="max-w-6xl mx-auto px-6">
+          {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="text-center mb-12"
+            transition={{ duration: 0.6 }}
+            className="text-center mb-16"
           >
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-teal-400">
-                博客文章
-              </span>
-            </h1>
-            <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-              分享游戏开发、Unity技术和工具开发的经验与见解。
+            <h1 className="apple-title mb-4">博客</h1>
+            <p className="apple-subtitle max-w-xl mx-auto">
+              分享游戏开发、Unity技术和工具开发的经验与见解
             </p>
           </motion.div>
 
-          {/* 搜索框 */}
-          <div className="mb-8">
-            <div className="max-w-md mx-auto relative">
+          {/* Search */}
+          <motion.div
+            className="mb-10"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1, duration: 0.5 }}
+          >
+            <div className="max-w-lg mx-auto relative">
               <input
                 type="text"
                 placeholder="搜索文章..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-4 py-3 pl-12 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow"
+                className="w-full px-5 py-3.5 pl-12 bg-[var(--bg-secondary)] border-none rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-blue)] transition-shadow"
               />
               <svg
-                className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
+                className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[var(--text-tertiary)]"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </div>
-          </div>
+          </motion.div>
 
-          {/* 分类过滤器 */}
-          <div className="flex flex-wrap justify-center gap-3 mb-12">
-            {categories.map((category) => (
-              <motion.button
-                key={category}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${activeCategory === category
-                    ? 'bg-gradient-to-r from-blue-500 to-teal-400 text-white shadow-lg'
-                    : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700'
-                  }`}
-                onClick={() => setActiveCategory(category)}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                {category}
-              </motion.button>
-            ))}
-          </div>
-
-          {/* 博客文章网格 */}
+          {/* Category Filter */}
           <motion.div
+            className="flex flex-wrap justify-center gap-2 mb-14"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+            transition={{ delay: 0.2, duration: 0.5 }}
           >
-            {filteredPosts.map((post, index) => (
-              <motion.div
-                key={post.slug}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1, duration: 0.4 }}
+            {categories.map((category) => (
+              <button
+                key={category}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${activeCategory === category
+                    ? 'bg-[var(--accent-blue)] text-white'
+                    : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                  }`}
+                onClick={() => setActiveCategory(category)}
               >
-                <BlogCard {...post} />
-              </motion.div>
+                {category}
+              </button>
             ))}
           </motion.div>
 
-          {/* 如果没有匹配的文章 */}
+          {/* Blog Posts Grid */}
+          <motion.div
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            layout
+          >
+            <AnimatePresence mode="popLayout">
+              {filteredPosts.map((post, index) => (
+                <motion.div
+                  key={post.slug}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ delay: index * 0.05, duration: 0.4 }}
+                  layout
+                >
+                  <BlogCard {...post} />
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </motion.div>
+
+          {/* Empty State */}
           {filteredPosts.length === 0 && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="text-center py-16"
+              className="text-center py-20"
             >
-              <div className="text-6xl mb-4">🔍</div>
-              <p className="text-gray-500 dark:text-gray-400 text-lg">没有找到匹配的文章</p>
+              <div className="text-5xl mb-6">🔍</div>
+              <p className="text-[var(--text-secondary)] text-lg mb-4">没有找到匹配的文章</p>
               <button
                 onClick={() => { setSearchQuery(''); setActiveCategory('全部'); }}
-                className="mt-4 text-blue-500 hover:text-blue-600 font-medium"
+                className="text-[var(--accent-blue)] hover:opacity-70 font-medium transition-opacity"
               >
                 清除筛选条件
               </button>

@@ -7,8 +7,10 @@ export default function Comments() {
     const { isDark } = useTheme();
 
     return (
-        <section className="mt-16 pt-8 border-t border-gray-700">
-            <h2 className="text-2xl font-bold mb-8 text-white">💬 评论</h2>
+        <section className="mt-20 pt-10 border-t border-[var(--border-color)]">
+            <h2 className="text-xl font-semibold text-[var(--text-primary)] mb-8 tracking-tight">
+                评论
+            </h2>
             <Giscus
                 repo="qwerwanghao/simplypioner-blog"
                 repoId="R_kgDOOCYWwA"

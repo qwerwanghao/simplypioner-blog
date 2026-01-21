@@ -22,90 +22,78 @@ const PostPage = ({ meta, source }: PostPageProps) => {
       title={`${meta.title} | 王浩的个人博客`}
       description={meta.excerpt}
     >
-      <article className="py-20 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* 返回链接 */}
+      <article className="min-h-screen pt-24 pb-20 bg-[var(--bg-primary)]">
+        <div className="max-w-3xl mx-auto px-6">
+          {/* Back Link */}
           <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="mb-8"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="mb-10"
           >
             <Link
               href="/blog"
-              className="inline-flex items-center text-gray-600 dark:text-gray-400 hover:text-blue-500 transition-colors"
+              className="inline-flex items-center text-sm text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors"
             >
-              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 19l-7-7 7-7" />
               </svg>
-              返回博客列表
+              博客
             </Link>
           </motion.div>
 
-          {/* 文章头部 */}
+          {/* Article Header */}
           <motion.header
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
+            transition={{ duration: 0.6 }}
             className="mb-12"
           >
-            {/* 标签 */}
-            <div className="flex flex-wrap gap-2 mb-4">
+            {/* Tags */}
+            <div className="flex flex-wrap gap-2 mb-5">
               {meta.tags.map((tag, index) => (
-                <span
-                  key={index}
-                  className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-sm rounded-full"
-                >
+                <span key={index} className="apple-tag">
                   {tag}
                 </span>
               ))}
             </div>
 
-            {/* 标题 */}
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4 leading-tight">
+            {/* Title */}
+            <h1 className="text-3xl md:text-4xl font-semibold text-[var(--text-primary)] mb-5 leading-tight tracking-tight">
               {meta.title}
             </h1>
 
-            {/* 元信息 */}
-            <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-              <span className="flex items-center">
-                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                {meta.date}
-              </span>
-              <span className="flex items-center">
-                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                {meta.readingTime}
-              </span>
+            {/* Meta Info */}
+            <div className="flex flex-wrap items-center gap-4 text-sm text-[var(--text-tertiary)]">
+              <span>{meta.date}</span>
+              <span className="w-1 h-1 rounded-full bg-[var(--text-tertiary)]" />
+              <span>{meta.readingTime}</span>
             </div>
           </motion.header>
 
-          {/* 文章内容 */}
+          {/* Article Content */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="prose prose-lg dark:prose-invert max-w-none"
+            transition={{ delay: 0.1, duration: 0.6 }}
+            className="prose"
           >
             <MDXRemote {...source} components={MDXComponents} />
           </motion.div>
 
-          {/* 文章底部 */}
+          {/* Article Footer */}
           <motion.footer
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
-            className="mt-16 pt-8 border-t border-gray-200 dark:border-gray-700"
+            transition={{ delay: 0.2 }}
+            className="mt-20 pt-8 border-t border-[var(--border-color)]"
           >
-            <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-              <div className="text-gray-600 dark:text-gray-400">
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-6">
+              <p className="text-[var(--text-secondary)] text-sm">
                 感谢阅读！如有问题欢迎交流讨论。
-              </div>
+              </p>
               <Link
                 href="/blog"
-                className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-500 to-teal-400 text-white rounded-full hover:shadow-lg transition-shadow"
+                className="apple-btn apple-btn-primary text-sm"
               >
                 查看更多文章
                 <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -115,7 +103,7 @@ const PostPage = ({ meta, source }: PostPageProps) => {
             </div>
           </motion.footer>
 
-          {/* 评论区 */}
+          {/* Comments */}
           <Comments />
         </div>
       </article>
