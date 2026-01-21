@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import type { NavbarProps } from '../types/components';
+import ThemeToggle from './ThemeToggle';
+import useTheme from '../hooks/useTheme';
 
-const Navbar = ({}: NavbarProps) => {
+const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { isDark, toggleTheme, mounted } = useTheme();
 
   const menuItems = [
     { href: '/', label: '首页' },
     { href: '/about', label: '关于' },
     { href: '/projects', label: '项目' },
+    { href: '/skills', label: '技能' },
     { href: '/blog', label: '博客' },
     { href: '/contact', label: '联系' }
   ];
@@ -45,6 +48,16 @@ const Navbar = ({}: NavbarProps) => {
                 </Link>
               </motion.div>
             ))}
+            {/* 主题切换按钮 */}
+            {mounted && (
+              <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: menuItems.length * 0.1 }}
+              >
+                <ThemeToggle isDark={isDark} toggleTheme={toggleTheme} />
+              </motion.div>
+            )}
           </div>
 
           {/* Mobile Menu Button */}

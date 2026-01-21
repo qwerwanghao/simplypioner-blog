@@ -1,9 +1,18 @@
 import React from 'react';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
-import type { FooterProps } from '../types/components';
 
-const Footer = ({}: FooterProps) => {
+const Footer = () => {
   const currentYear = new Date().getFullYear();
+
+  const footerLinks = [
+    { label: '首页', href: '/' },
+    { label: '关于', href: '/about' },
+    { label: '项目', href: '/projects' },
+    { label: '技能', href: '/skills' },
+    { label: '博客', href: '/blog' },
+    { label: '联系', href: '/contact' },
+  ];
 
   const socialLinks = [
     {
@@ -36,50 +45,67 @@ const Footer = ({}: FooterProps) => {
   ];
 
   return (
-    <footer className="relative mt-20">
+    <footer className="relative mt-20 bg-gray-50 dark:bg-gray-900">
+      {/* 装饰性渐变线 */}
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-blue-500/50 to-transparent" />
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* Logo 和描述 */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
             viewport={{ once: true }}
-            className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center"
+            transition={{ duration: 0.5 }}
           >
-            <div className="text-center md:text-left">
-              <motion.p 
-                className="text-sm text-gray-600 dark:text-gray-400"
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
-                transition={{ delay: 0.2 }}
-                viewport={{ once: true }}
-              >
-                © {currentYear} Wang Hao. All rights reserved.
-              </motion.p>
-              <motion.p 
-                className="mt-2 text-sm text-gray-500 dark:text-gray-500"
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
-                transition={{ delay: 0.3 }}
-                viewport={{ once: true }}
-              >
-                Unity3D Developer & Front-end Engineer
-              </motion.p>
-            </div>
+            <Link href="/" className="text-xl font-bold bg-gradient-to-r from-blue-500 to-teal-400 bg-clip-text text-transparent">
+              Wang Hao
+            </Link>
+            <p className="mt-3 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+              Unity3D 高级开发工程师<br />
+              专注于游戏开发与性能优化
+            </p>
+          </motion.div>
 
-            <div className="flex justify-center md:justify-end space-x-6">
+          {/* 快速链接 */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+          >
+            <h3 className="font-semibold text-gray-900 dark:text-white mb-4">快速链接</h3>
+            <ul className="grid grid-cols-2 gap-2">
+              {footerLinks.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </motion.div>
+
+          {/* 联系方式 */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            <h3 className="font-semibold text-gray-900 dark:text-white mb-4">联系我</h3>
+            <div className="flex space-x-4">
               {socialLinks.map((link, index) => (
                 <motion.a
                   key={link.name}
                   href={link.url}
-                  className="text-gray-500 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  initial={{ opacity: 0, y: 10 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 * index }}
-                  viewport={{ once: true }}
-                  whileHover={{ scale: 1.1 }}
+                  className="p-2 bg-white dark:bg-gray-800 rounded-lg text-gray-500 hover:text-blue-500 dark:hover:text-blue-400 shadow-sm hover:shadow-md transition-all"
+                  target={link.url.startsWith('http') ? '_blank' : undefined}
+                  rel={link.url.startsWith('http') ? 'noopener noreferrer' : undefined}
+                  whileHover={{ scale: 1.1, y: -2 }}
                   whileTap={{ scale: 0.95 }}
                 >
                   {link.icon}
@@ -90,8 +116,21 @@ const Footer = ({}: FooterProps) => {
           </motion.div>
         </div>
 
-        {/* Decorative gradient line */}
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gray-200 dark:via-gray-800 to-transparent" />
+        {/* 版权信息 */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-800"
+        >
+          <div className="flex flex-col md:flex-row justify-between items-center text-sm text-gray-500 dark:text-gray-400">
+            <p>© {currentYear} Wang Hao. All rights reserved.</p>
+            <p className="mt-2 md:mt-0">
+              Built with ❤️ using Next.js & Tailwind CSS
+            </p>
+          </div>
+        </motion.div>
       </div>
     </footer>
   );

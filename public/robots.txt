@@ -1,0 +1,13 @@
+# Robots.txt for 王浩的个人博客
+# https://www.robotstxt.org/robotstxt.html
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://wanghao.dev/sitemap.xml
+
+# Disallow admin and private paths
+Disallow: /api/
+Disallow: /_next/
+Disallow: /404
