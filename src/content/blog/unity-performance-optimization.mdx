@@ -1,0 +1,145 @@
+---
+title: Unity 性能优化实战：从 Profiler 到实际优化
+date: 2024-01-15
+excerpt: 分享在宝可梦大集结项目中的性能优化经验，包括如何使用 Unity Profiler 定位性能瓶颈，优化 GC、DrawCall 和内存使用。
+coverImage: /images/blog/unity-performance.jpg
+readingTime: 12 分钟
+tags:
+  - Unity
+  - 游戏开发
+  - 性能优化
+---
+
+# Unity 性能优化实战
+
+在开发《宝可梦大集结》期间，我积累了大量游戏性能优化的实战经验。本文将分享一些常用的优化技巧和工具使用方法。
+
+## 为什么性能优化很重要
+
+游戏的流畅度直接影响玩家体验。一个卡顿的游戏会让玩家感到沮丧，甚至导致玩家流失。特别是在 MOBA 类游戏中，帧率的稳定性至关重要。
+
+<Callout type="tip">
+  在移动平台上，我们通常以 30fps 或 60fps 为目标帧率。低端机 30fps、高端机 60fps 是常见的策略。
+</Callout>
+
+## Unity Profiler 使用技巧
+
+Unity Profiler 是定位性能问题的首选工具。以下是一些使用技巧：
+
+### 1. 开启 Deep Profile
+
+Deep Profile 可以显示每个函数的详细调用信息，但会显著增加开销。建议只在需要深入分析时使用。
+
+```csharp
+// 在代码中添加性能标记
+using (new ProfilerMarker("MyFunction").Auto())
+{
+    // 需要分析的代码
+}
+```
+
+### 2. 关注 GC Alloc
+
+GC（垃圾回收）是移动游戏的大敌。每次 GC 都可能导致卡顿。
+
+**常见的 GC 来源：**
+- 字符串拼接：使用 `StringBuilder` 或 `string.Format`
+- LINQ 查询：改用传统 for 循环
+- 装箱拆箱：避免值类型到 object 的转换
+- 临时 List/Dictionary：使用对象池
+
+```csharp
+// ❌ 错误示例：每帧产生 GC
+void Update()
+{
+    string text = "Score: " + score;  // 字符串拼接产生 GC
+}
+
+// ✅ 正确示例：使用 StringBuilder
+private StringBuilder sb = new StringBuilder();
+
+void Update()
+{
+    sb.Clear();
+    sb.Append("Score: ");
+    sb.Append(score);
+    string text = sb.ToString();
+}
+```
+
+## 对象池实战
+
+对象池是减少 GC 的有效手段。以下是一个简单的对象池实现：
+
+```csharp
+public class ObjectPool<T> where T : Component
+{
+    private readonly Queue<T> pool = new Queue<T>();
+    private readonly T prefab;
+    private readonly Transform parent;
+
+    public ObjectPool(T prefab, int initialSize, Transform parent = null)
+    {
+        this.prefab = prefab;
+        this.parent = parent;
+
+        for (int i = 0; i < initialSize; i++)
+        {
+            var obj = Object.Instantiate(prefab, parent);
+            obj.gameObject.SetActive(false);
+            pool.Enqueue(obj);
+        }
+    }
+
+    public T Get()
+    {
+        if (pool.Count > 0)
+        {
+            var obj = pool.Dequeue();
+            obj.gameObject.SetActive(true);
+            return obj;
+        }
+        return Object.Instantiate(prefab, parent);
+    }
+
+    public void Return(T obj)
+    {
+        obj.gameObject.SetActive(false);
+        pool.Enqueue(obj);
+    }
+}
+```
+
+## DrawCall 优化
+
+DrawCall 过多会导致 CPU 瓶颈。常见的优化方法：
+
+| 优化方法 | 适用场景 | 效果 |
+|---------|---------|------|
+| 静态批处理 | 静态物体 | 合并多个 DrawCall |
+| 动态批处理 | 小型动态物体 | 自动合并 |
+| GPU Instancing | 大量相同物体 | 一次绘制多个 |
+| SRP Batcher | URP/HDRP | 减少 Set Pass Call |
+
+<Callout type="warning">
+  动态批处理有限制：顶点数不能超过 900，且需要相同材质。
+</Callout>
+
+## UI 优化经验
+
+在 UGUI 优化方面，我总结了以下经验：
+
+1. **Canvas 分层**：将静态 UI 和动态 UI 分到不同 Canvas
+2. **关闭 Raycast Target**：不需要交互的元素关闭此选项
+3. **使用 Canvas Group**：批量控制透明度，替代逐个设置
+4. **避免 Layout 组件嵌套**：Layout 计算开销大
+
+## 总结
+
+性能优化是一个持续的过程，需要结合 Profiler 数据进行有针对性的优化。记住几个原则：
+
+1. **先测量后优化**：不要凭感觉优化
+2. **二八法则**：20% 的代码导致 80% 的性能问题
+3. **真机测试**：Editor 和真机表现可能不同
+
+希望这些经验对你有帮助！如有问题欢迎交流。

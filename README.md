@@ -67,9 +67,14 @@ personal-blog/
 │   │   ├── BlogCard.tsx    # 博客卡片
 │   │   ├── BackToTop.tsx   # 返回顶部
 │   │   ├── ThemeToggle.tsx # 主题切换按钮
-│   │   └── SEO.tsx         # SEO 组件
+│   │   ├── SEO.tsx         # SEO 组件
+│   │   └── MDXComponents.tsx # MDX 自定义组件
+│   ├── content/            # 内容目录
+│   │   └── blog/           # 博客文章（.mdx 文件）
 │   ├── hooks/              # 自定义 Hooks
 │   │   └── useTheme.ts     # 主题管理
+│   ├── lib/                # 工具库
+│   │   └── mdx.ts          # MDX 文章读取
 │   ├── pages/              # 页面路由
 │   │   ├── index.tsx       # 首页
 │   │   ├── about.tsx       # 关于我
@@ -79,7 +84,7 @@ personal-blog/
 │   │   ├── sitemap.xml.tsx # 站点地图
 │   │   └── blog/
 │   │       ├── index.tsx   # 博客列表
-│   │       └── [slug].tsx  # 博客详情
+│   │       └── [slug].tsx  # 博客详情（MDX 渲染）
 │   ├── styles/             # 样式文件
 │   │   └── globals.css     # 全局样式
 │   └── types/              # TypeScript 类型定义
@@ -88,21 +93,67 @@ personal-blog/
 └── package.json
 ```
 
-## 📝 添加博客文章
+## 📝 写博客文章（MDX）
 
-在 `src/pages/blog/index.tsx` 中的 `blogPosts` 数组添加新的文章对象：
+博客系统使用 MDX 格式，支持 Markdown + React 组件。文章存放在 `src/content/blog/` 目录。
 
-```typescript
+### 创建新文章
+
+1. 在 `src/content/blog/` 目录下新建 `.mdx` 文件，如 `my-new-post.mdx`
+2. 文件名即为 URL slug，如访问路径为 `/blog/my-new-post`
+
+### 文章格式
+
+```mdx
+---
+title: 文章标题
+date: 2024-01-20
+excerpt: 这里是文章摘要，会显示在博客列表页...
+coverImage: /images/blog/cover.jpg
+readingTime: 10 分钟
+tags:
+  - Unity
+  - 游戏开发
+---
+
+# 正文从这里开始
+
+支持所有 Markdown 语法：**加粗**、*斜体*、`行内代码`...
+
+## 代码高亮
+
+\`\`\`csharp
+public class Example : MonoBehaviour
 {
-  title: '文章标题',
-  slug: 'article-slug',
-  excerpt: '文章摘要',
-  coverImage: '/images/blog/cover.jpg',
-  date: '2024-01-01',
-  readingTime: '10分钟',
-  tags: ['Unity', '游戏开发'],
+    void Start()
+    {
+        Debug.Log("Hello World!");
+    }
 }
+\`\`\`
+
+## 提示框组件
+
+<Callout type="tip">
+  这是一个提示，type 可选：info / warning / tip / danger
+</Callout>
 ```
+
+### Frontmatter 字段说明
+
+| 字段 | 必填 | 说明 |
+|------|------|------|
+| `title` | ✅ | 文章标题 |
+| `date` | ✅ | 发布日期（YYYY-MM-DD） |
+| `excerpt` | ✅ | 文章摘要 |
+| `readingTime` | ✅ | 阅读时长 |
+| `tags` | ✅ | 标签数组 |
+| `coverImage` | ❌ | 封面图片路径 |
+
+### 可用组件
+
+- `<Callout type="info|warning|tip|danger">` - 提示框
+- 更多组件可在 `src/components/MDXComponents.tsx` 中添加
 
 ## 🌐 部署
 

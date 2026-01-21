@@ -1,0 +1,134 @@
+---
+title: UGUI 优化技巧：让 UI 丝滑如画
+date: 2024-01-05
+excerpt: 深入探讨 UGUI 的优化策略，包括 Canvas 分层、RaycastTarget 优化、对象池使用等，显著提升 UI 渲染性能。
+coverImage: /images/blog/ugui-tips.jpg
+readingTime: 10 分钟
+tags:
+  - Unity
+  - UGUI
+  - 性能优化
+---
+
+# UGUI 优化技巧
+
+Unity 的 UGUI 系统功能强大，但如果使用不当，很容易成为性能瓶颈。本文分享一些实用的 UGUI 优化技巧。
+
+## Canvas 重建原理
+
+理解 Canvas 重建机制是优化的基础。当 Canvas 下的任何元素发生变化时，整个 Canvas 都会重建。
+
+<Callout type="info">
+  Canvas 重建包括两个步骤：Layout 重建和 Graphic 重建。任何一个都会导致性能开销。
+</Callout>
+
+### 触发重建的操作
+
+- 激活/隐藏 UI 元素
+- 修改 RectTransform 属性
+- 修改 Text/Image 内容
+- 添加/删除子物体
+
+## Canvas 分层策略
+
+将 UI 按更新频率分到不同的 Canvas：
+
+```
+UI Root
+├── Canvas_Static      # 静态元素（背景、边框）
+├── Canvas_Rarely      # 偶尔变化（按钮、图标）
+├── Canvas_Frequent    # 频繁变化（血条、计时器）
+└── Canvas_Popup       # 弹窗层
+```
+
+每个 Canvas 独立重建，避免相互影响。
+
+## RaycastTarget 优化
+
+默认情况下，所有 Graphic 组件都会开启 `Raycast Target`，这意味着每次点击都要遍历所有 UI 元素。
+
+```csharp
+// 批量关闭不需要交互的元素
+public static void DisableRaycastTarget(GameObject root)
+{
+    var graphics = root.GetComponentsInChildren<Graphic>();
+    foreach (var graphic in graphics)
+    {
+        if (graphic.GetComponent<Selectable>() == null)
+        {
+            graphic.raycastTarget = false;
+        }
+    }
+}
+```
+
+<Callout type="tip">
+  可以写一个 Editor 工具，自动检查并关闭不需要的 RaycastTarget。
+</Callout>
+
+## 对象池管理 UI
+
+频繁创建销毁 UI 元素会产生大量 GC。使用对象池来复用：
+
+```csharp
+public class UIPool : MonoBehaviour
+{
+    [SerializeField] private GameObject itemPrefab;
+    private readonly Stack<GameObject> pool = new Stack<GameObject>();
+
+    public GameObject Get()
+    {
+        if (pool.Count > 0)
+        {
+            var item = pool.Pop();
+            item.SetActive(true);
+            return item;
+        }
+        return Instantiate(itemPrefab, transform);
+    }
+
+    public void Return(GameObject item)
+    {
+        item.SetActive(false);
+        pool.Push(item);
+    }
+}
+```
+
+## 避免使用 Layout 组件
+
+`VerticalLayoutGroup`、`HorizontalLayoutGroup` 等组件虽然方便，但性能开销大。
+
+**替代方案：**
+
+1. 手动计算位置
+2. 仅在必要时使用 `ContentSizeFitter`
+3. 使用 `LayoutRebuilder.ForceRebuildLayoutImmediate()` 控制重建时机
+
+## 图集优化
+
+合理使用图集可以减少 DrawCall：
+
+| 图集策略 | 说明 |
+|---------|------|
+| 按功能分组 | 同一界面的图片放同一图集 |
+| 尺寸限制 | 单个图集不超过 2048x2048 |
+| 压缩格式 | 移动平台使用 ASTC/ETC2 |
+
+## Mask 的替代方案
+
+`Mask` 组件会增加 DrawCall，考虑使用 `RectMask2D` 替代：
+
+- `RectMask2D`：不增加 DrawCall，但只支持矩形裁剪
+- `Mask`：支持任意形状，但每个 Mask 至少增加 2 个 DrawCall
+
+## 总结
+
+UGUI 优化的核心思路：
+
+1. **减少重建频率**：Canvas 分层
+2. **减少重建范围**：合理规划层级
+3. **减少 DrawCall**：图集 + 避免 Mask
+4. **减少 GC**：对象池复用
+
+记住：优化前先用 Profiler 找到真正的问题所在！

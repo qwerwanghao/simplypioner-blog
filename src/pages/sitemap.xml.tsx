@@ -1,18 +1,9 @@
 import type { IncomingMessage, ServerResponse } from 'http';
+import { getAllSlugs } from '@/lib/mdx';
 
 const SITE_URL = 'https://wanghao.dev';
 
-// 博客文章 slugs（与 blog/index.tsx 保持同步）
-const blogSlugs = [
-  'unity-performance-optimization',
-  'ugui-optimization-tips',
-  'game-activity-system-design',
-  'svn-merge-automation',
-  'how-to-build-blog-with-nextjs',
-  'unity-editor-tools-guide',
-];
-
-function generateSiteMap() {
+function generateSiteMap(slugs: string[]) {
   const currentDate = new Date().toISOString();
 
   return `<?xml version="1.0" encoding="UTF-8"?>
@@ -66,7 +57,7 @@ function generateSiteMap() {
   </url>
   
   <!-- 博客文章 -->
-  ${blogSlugs
+  ${slugs
       .map(
         (slug) => `
   <url>
@@ -89,7 +80,8 @@ interface GetServerSidePropsContext {
 }
 
 export async function getServerSideProps({ res }: GetServerSidePropsContext) {
-  const sitemap = generateSiteMap();
+  const slugs = getAllSlugs();
+  const sitemap = generateSiteMap(slugs);
 
   res.setHeader('Content-Type', 'text/xml');
   res.write(sitemap);
