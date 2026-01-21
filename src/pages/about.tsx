@@ -1,145 +1,201 @@
 import React from 'react';
 import Layout from '../components/Layout';
+import { motion } from 'framer-motion';
+
+// Animation variants
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5 }
+  }
+};
 
 const AboutPage = () => {
   return (
     <Layout title="关于我 | 王浩的个人博客">
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        <h1 className="text-4xl font-bold mb-8">王浩 | Unity 高级客户端工程师</h1>
-
-        {/* 基本信息 */}
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">基本信息</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="flex items-center">
-              <span className="font-medium w-32">工作经验：</span>
-              <span>5.5 年</span>
-            </div>
-            <div className="flex items-center">
-              <span className="font-medium w-32">所在地：</span>
-              <span>深圳</span>
-            </div>
-            <div className="flex items-center">
-              <span className="font-medium w-32">邮箱：</span>
-              <a href="mailto:qwerwanghao@gmail.com" className="text-blue-600 hover:underline">
-                qwerwanghao@gmail.com
-              </a>
-            </div>
-            <div className="flex items-center">
-              <span className="font-medium w-32">电话：</span>
-              <span>186-3986-1974</span>
-            </div>
-          </div>
-        </section>
-
-        {/* 职业概述 */}
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">职业概述</h2>
-          <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-            Unity 高级客户端工程师，5.5 年移动与主机平台游戏开发经验。精通 Unity3D、C# 及活动系统、UI 框架等核心模块，具备丰富的跨端适配与性能优化实战。参与多款大型项目的开发与上线，服务千万级用户。注重代码质量与团队协作，善于自研工具和流程优化，熟练运用 AI 辅助工具提升开发效率，持续学习新技术，助力产品高质量交付。
-          </p>
-        </section>
-
-        {/* 核心技能 */}
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">核心技能</h2>
-          <div className="mb-4">
-            <h3 className="text-lg font-medium mb-2 text-green-600">精通：</h3>
-            <p className="text-gray-700 dark:text-gray-300">
-              Unity3D、C#、UGUI、Lua、OOP、活动系统架构、Editor工具开发、代码重构与Code Review、AI辅助工具开发
+      <div className="min-h-screen bg-[var(--bg-primary)] pt-24 pb-20">
+        <motion.div
+          className="max-w-6xl mx-auto px-6"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          {/* Hero Section */}
+          <motion.div variants={itemVariants} className="text-center mb-16">
+            <h1 className="text-5xl md:text-7xl font-bold mb-6 tracking-tight">
+              你好，我是 <span className="apple-gradient-text">王浩</span>
+            </h1>
+            <p className="text-xl md:text-2xl text-[var(--text-secondary)] font-medium max-w-2xl mx-auto">
+              Unity 高级客户端工程师，致力于打造极致的 3D 交互体验。
             </p>
+          </motion.div>
+
+          {/* Bento Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-16">
+            {/* Professional Summary - Large Card */}
+            <motion.div variants={itemVariants} className="apple-card p-8 md:col-span-2 md:row-span-1">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 bg-blue-500/10 rounded-lg text-blue-500">
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                </div>
+                <h2 className="text-xl font-semibold">职业概述</h2>
+              </div>
+              <p className="text-[var(--text-secondary)] leading-relaxed">
+                5.5 年移动与主机平台游戏开发经验。精通 Unity3D、C# 及活动系统、UI 框架等核心模块。
+                具备丰富的跨端适配与性能优化实战经验。注重代码质量与团队协作，善于自研工具提升效率。
+              </p>
+            </motion.div>
+
+            {/* Experience Stats */}
+            <motion.div variants={itemVariants} className="apple-card p-6 flex flex-col justify-center items-center text-center">
+              <span className="text-5xl font-bold apple-gradient-text mb-2 block">5.5+</span>
+              <span className="text-[var(--text-secondary)] font-medium">年开发经验</span>
+            </motion.div>
+
+            {/* Location Stats */}
+            <motion.div variants={itemVariants} className="apple-card p-6 flex flex-col justify-center items-center text-center">
+              <div className="w-16 h-16 mb-4 rounded-full bg-indigo-500/10 flex items-center justify-center text-indigo-500">
+                <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </div>
+              <span className="text-xl font-bold">深圳, 中国</span>
+            </motion.div>
+
+            {/* Key Achievements - Wide Card */}
+            <motion.div variants={itemVariants} className="apple-card p-8 md:col-span-4">
+              <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
+                <span className="text-amber-500">★</span> 关键成就
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="bg-[var(--bg-tertiary)] p-4 rounded-xl">
+                  <h3 className="font-bold text-lg mb-1">千万级 DAU</h3>
+                  <p className="text-sm text-[var(--text-tertiary)]">2 款大型项目成功上线，服务海量用户</p>
+                </div>
+                <div className="bg-[var(--bg-tertiary)] p-4 rounded-xl">
+                  <h3 className="font-bold text-lg mb-1">200+ 人天</h3>
+                  <p className="text-sm text-[var(--text-tertiary)]">自研多款工具，累计节省大量开发时间</p>
+                </div>
+                <div className="bg-[var(--bg-tertiary)] p-4 rounded-xl">
+                  <h3 className="font-bold text-lg mb-1">性能提升 20%</h3>
+                  <p className="text-sm text-[var(--text-tertiary)]">深度优化低端机性能，显著降低内存占用</p>
+                </div>
+              </div>
+            </motion.div>
           </div>
-          <div>
-            <h3 className="text-lg font-medium mb-2 text-blue-600">熟悉：</h3>
-            <p className="text-gray-700 dark:text-gray-300">
-              ECS/JobSystem、网络同步、热更新、资源管线（AssetBundle/Addressables）、CI/CD（蓝盾/Jenkins）、多平台打包（Android/iOS/Switch）、性能分析与优化（Profiler/RenderDoc）、Shader基础调优、主流GPU分析工具
-            </p>
-          </div>
-        </section>
 
-        {/* 关键成就 */}
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">关键成就</h2>
-          <ul className="list-disc pl-6 space-y-2">
-            <li>2 款项目成功上线，覆盖千万级 DAU</li>
-            <li>自研工具多款，累计节省人天 200+</li>
-            <li>活动系统配置化后迭代效率显著提升</li>
-            <li>积极跟进AI快速发展，研究AI从设计稿生成Prefab、UnityMCP、ExcelMCP等MCP工具的使用，持续提升开发效率</li>
-          </ul>
-        </section>
+          {/* Tech Stack */}
+          <motion.div variants={itemVariants} className="mb-20">
+            <h2 className="text-3xl font-bold mb-10 text-center">技术栈</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {/* Master */}
+              <div className="apple-card p-8">
+                <h3 className="text-xl font-semibold mb-6 text-green-600 flex items-center gap-2">
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                  精通
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {['Unity3D', 'C#', 'UGUI', 'Lua', 'OOP', '活动系统架构', 'Editor工具开发', '代码重构', 'AI辅助工具'].map(skill => (
+                    <span key={skill} className="apple-tag">{skill}</span>
+                  ))}
+                </div>
+              </div>
 
-        {/* 工作经历 */}
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">工作经历</h2>
-
-          <div className="mb-8">
-            <h3 className="text-xl font-medium mb-2">外派腾讯天美 · 宝可梦大集结</h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-2">Unity 游戏客户端开发 | 2020.07 – 至今</p>
-
-            <div className="mb-6">
-              <h4 className="text-lg font-medium mb-2">【系统组】2021.07 – 2024.07</h4>
-              <ul className="list-disc pl-6 space-y-2">
-                <li>负责登录、抽奖、"活动塔"等十余个运营活动的 UI / 逻辑开发，将参数与界面解耦为策划可配表，后续同类活动基本无需客户端介入</li>
-                <li>主导落地"趣游迷塔"大型活动，推动 5 轮需求评审与快速迭代，成为该版本玩家参与度最高的活动</li>
-                <li>构建系统级 UI 组件库（按钮、进度条、弹窗模板），统一动画与事件封装，减少重复代码与维护成本</li>
-                <li>设计并实现对战录像回放框架（快进、暂停），稳定运行至今未出现崩溃</li>
-                <li>完成二维码加好友功能：集成第三方扫描 SDK + 动态加密二维码，完善社交链路，日均使用量大幅增长</li>
-                <li>跟踪线上崩溃日志，集中修复 NullRef、UI 卡死等问题 100+，有效降低版本差评</li>
-                <li>输出《运营活动客户端开发规范》《UI 资源命名规范》，用于新人 Onboarding 与 Code Review</li>
-                <li>输出《客户端如何新增GM指令》《客户端常用GM指令》《快速查找GM指令》《GM指令输出Log》，用于帮助项目组同学使用GM系统</li>
-                <li>输出《SVN合线工具指南》，帮助项目组同学使用合入工具节省合入时间</li>
-                <li>输出《局外性能优化方法》，帮助项目组同学使用 Unity Profiler、Memory Profiler 等工具优化局外界面卡顿、帧率、内存问题</li>
-              </ul>
+              {/* Familiar */}
+              <div className="apple-card p-8">
+                <h3 className="text-xl font-semibold mb-6 text-blue-600 flex items-center gap-2">
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                  熟悉
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {['ECS/JobSystem', '网络同步', '热更新', 'AssetBundle', 'CI/CD (Jenkins)', '性能优化', 'Shader', 'RenderDoc'].map(skill => (
+                    <span key={skill} className="px-3 py-1 rounded-full bg-[var(--bg-tertiary)] text-[var(--text-secondary)] text-sm border border-[var(--border-color)]">{skill}</span>
+                  ))}
+                </div>
+              </div>
             </div>
+          </motion.div>
 
-            <div className="mb-6">
-              <h4 className="text-lg font-medium mb-2">【战场组】2024.08 – 2025.04</h4>
-              <ul className="list-disc pl-6 space-y-2">
-                <li>重构 GM 工具：优化 GUI 排版并新增日志打印、常用 GM 指令，一线开发使用体验大幅提升</li>
-                <li>小地图血量显示：实时渲染英雄血量百分比，增强信息获取，获得策划与玩家好评</li>
-                <li>新增"伤害免疫率"角色属性，配合服务器与策划调参，丰富战斗机制并保持版本平衡</li>
-                <li>扩展技能编辑器：支持"扣血 Buff"等新效果，让策划无需代码即可配置多样化技能</li>
-                <li>自研 SVN 多分支合线机器人，自动冲突处理，显著降低人工错误</li>
-                <li>开发动画检查工具，自动检测 Animator / Playable 资产缺失与冗余，减少美术资源错误</li>
-                <li>优化 GameMode 逻辑与性能，持续定位并修复技能、特效、地图等 Bug</li>
-              </ul>
+          {/* Experience Timeline */}
+          <motion.div variants={itemVariants}>
+            <h2 className="text-3xl font-bold mb-10 text-center">工作经历</h2>
+
+            <div className="space-y-8 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-[var(--border-color)] before:to-transparent">
+
+              {/* Tencent */}
+              <div className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+                <div className="flex items-center justify-center w-10 h-10 rounded-full border-4 border-[var(--bg-primary)] bg-blue-500 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 text-white z-10">
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                </div>
+                <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-6 apple-card">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between mb-2">
+                    <h3 className="font-bold text-lg text-[var(--text-primary)]">腾讯天美 · 宝可梦大集结</h3>
+                    <span className="text-sm font-medium text-blue-500 bg-blue-500/10 px-2 py-0.5 rounded">2020.07 – 至今</span>
+                  </div>
+                  <p className="text-[var(--text-secondary)] mb-4 text-sm">Unity 游戏客户端开发</p>
+                  <ul className="space-y-2 text-sm text-[var(--text-secondary)] list-disc pl-4">
+                    <li><strong>系统组</strong>: 负责活动系统架构、UI组件库构建、NullRef 修复 (100+)。</li>
+                    <li><strong>战场组</strong>: 重构 GM 工具，优化小地图实时渲染与技能编辑器。</li>
+                    <li><strong>基础体验组</strong>: 搭建 Jenkins 构建流水线，自动化构建流程。</li>
+                  </ul>
+                </div>
+              </div>
+
+              {/* Yifan */}
+              <div className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+                <div className="flex items-center justify-center w-10 h-10 rounded-full border-4 border-[var(--bg-primary)] bg-indigo-500 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 text-white z-10">
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                </div>
+                <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-6 apple-card">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between mb-2">
+                    <h3 className="font-bold text-lg text-[var(--text-primary)]">易帆互动 · 真三国无双霸</h3>
+                    <span className="text-sm font-medium text-indigo-500 bg-indigo-500/10 px-2 py-0.5 rounded">2019.04 – 2020.06</span>
+                  </div>
+                  <p className="text-[var(--text-secondary)] mb-4 text-sm">Unity 客户端工程师</p>
+                  <ul className="space-y-2 text-sm text-[var(--text-secondary)] list-disc pl-4">
+                    <li>负责战令、运营活动等系统开发。</li>
+                    <li>使用 Profiler 优化低端机性能，FPS 提升 20%。</li>
+                    <li>重构战斗飘字，高强场景下 GC Alloc 降低 70%。</li>
+                  </ul>
+                </div>
+              </div>
+
             </div>
+          </motion.div>
 
-            <div>
-              <h4 className="text-lg font-medium mb-2">【基础体验组】2025.05 – 至今</h4>
-              <ul className="list-disc pl-6 space-y-2">
-                <li>搭建项目构建流水线：覆盖主干、性能、预发布、正式包四类流水线；并开发"一键搭建构建机环境"工具，确保稳定出包</li>
-                <li>维护实体与云端构建机，处理构建机掉线、证书失效等突发问题</li>
-                <li>修复构建脚本与蓝盾插件 Bug，保障每日自动构建准点产出</li>
-                <li>输出《iOS证书即将过期如何处理》《机房构建机蓝盾agent频繁上下线如何处理》《搭建Mac构建机构建环境》解决构建难题</li>
-              </ul>
+          {/* Education */}
+          <motion.div variants={itemVariants} className="mt-20 text-center">
+            <h2 className="text-3xl font-bold mb-10">教育背景</h2>
+            <div className="apple-card p-8 inline-block text-left w-full max-w-2xl">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
+                <div>
+                  <h3 className="text-xl font-bold">郑州科技学院</h3>
+                  <p className="text-[var(--text-secondary)]">建筑环境与能源应用工程 · 本科</p>
+                </div>
+                <span className="mt-2 md:mt-0 px-3 py-1 bg-[var(--bg-tertiary)] rounded-full text-sm text-[var(--text-tertiary)]">
+                  2016.09 - 2020.06
+                </span>
+              </div>
+              <p className="text-sm text-[var(--text-tertiary)]">成绩排名：5%-20%</p>
             </div>
-          </div>
+          </motion.div>
 
-          <div>
-            <h3 className="text-xl font-medium mb-2">易帆互动 · 真三国无双霸</h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-2">Unity 客户端工程师 | 2019.04 – 2020.06</p>
-            <ul className="list-disc pl-6 space-y-2">
-              <li>负责战令、运营活动、商店等局外系统 UI / 逻辑开发，保障按期上线</li>
-              <li>使用 Unity Profiler / FrameDebugger 优化界面性能，低端机 FPS 提升约 20%</li>
-              <li>重构战斗飘字：对象池 + 顶点合批，高强度场景下 GC Alloc ↓70%</li>
-              <li>完成 12+ 机型分辨率适配，并封装自动校准工具，保证 UI 一致性</li>
-              <li>通过热更新体系定位并修复线上 Bug 80+，确保版本稳定运行</li>
-              <li>编写《局外系统 UI 规范》《资源打包流程》文档，提升团队协同效率</li>
-            </ul>
-          </div>
-        </section>
-
-        {/* 教育背景 */}
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">教育背景</h2>
-          <div>
-            <h3 className="text-xl font-medium mb-2">郑州科技学院</h3>
-            <p className="text-gray-600 dark:text-gray-400">2016年9月 - 2020年6月</p>
-            <p>建筑环境与能源应用工程 本科</p>
-            <p>成绩排名：5%-20%</p>
-          </div>
-        </section>
+        </motion.div>
       </div>
     </Layout>
   );
