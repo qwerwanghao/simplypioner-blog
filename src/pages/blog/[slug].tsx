@@ -8,6 +8,7 @@ import rehypeHighlight from 'rehype-highlight';
 import rehypeSlug from 'rehype-slug';
 import Layout from '@/components/Layout';
 import { MDXComponents } from '@/components/MDXComponents';
+import Comments from '@/components/Comments';
 import { getPostBySlug, getAllSlugs, PostMeta } from '@/lib/mdx';
 
 interface PostPageProps {
@@ -113,6 +114,9 @@ const PostPage = ({ meta, source }: PostPageProps) => {
               </Link>
             </div>
           </motion.footer>
+
+          {/* 评论区 */}
+          <Comments />
         </div>
       </article>
     </Layout>
