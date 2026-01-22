@@ -1,137 +1,233 @@
 ---
-title: '打造终极AI开发工作站：WSL2 + WezTerm + Zellij 引爆效率革命'
-date: '2026-01-21'
-excerpt: 'Windows 开发环境总是处于一种微妙的“割裂感”中。如何通过 WSL2、WezTerm 和 Zellij 打造一套真正丝滑、工程化且具备 AI 辅助能力的终端系统？本文分享我的深度定制方案与避坑指南。'
-tags: ['效率工具', 'WSL', 'AI', '终端', 'Zsh', 'WezTerm']
-readingTime: '12 min read'
+title: '凌晨3点，我终于造出了自己的"开发操作系统"'
+date: '2026-01-22'
+excerpt: '厌倦了在十几个终端窗口间来回切换？受够了每次切项目都要重新打开编辑器？我用 WSL2 + WezTerm + Zellij + AI 打造了一套"开箱即用"的开发环境，现在开源给你们。'
+tags: ['效率工具', 'WSL', 'AI', '开源', '开发者工具']
+readingTime: '8 min read'
 ---
 
-## 一、逃离“二等公民”：Windows 开发者的困境
+## 那个让我崩溃的凌晨
 
-作为一名长期在 Windows 环境下工作的工程师，我曾长期忍受一种“环境割裂感”：
+凌晨 2:47，生产环境报 Bug。
 
-*   **生态错位**：大多数现代开发工具、Docker 容器以及生产环境都是 Linux 的天下，而在 Windows 下使用这些工具总觉得隔了一层。
-*   **性能瓶颈**：在传统的 `/mnt/c` (Windows 挂载目录) 下跑 `npm install` 或 `git status`，速度慢得让人怀疑人生。
-*   **交互挫败**：Cmd 简陋，Powershell 即使经过 Oh-My-Posh 的重度装扮，在快捷键逻辑和脚本生态上与 Unix 仍有鸿沟。
+我同时开着：
+- 3 个 VS Code 窗口（前端、后端、配置文件）
+- 2 个 PowerShell 窗口（跑服务、看日志）
+- 1 个 Git Bash（拉代码）
+- 1 个浏览器（查文档）
+- 1 个 Claude AI（问问题）
 
-**我真正想要的不是一个“漂亮的黑框”，而是一个能让我忘记操作系统差异、专注于逻辑的“开发操作系统”。**
+**Alt + Tab 切得我手指酸，眼神开始涣散。**
 
-经过多轮迭代，我最终锁定了这套终极方案：`WSL2 + WezTerm + Zellij + Zsh`。
+最崩溃的是——我想问 AI 一个问题，但之前的对话记录在另一个窗口，我找不到了。
 
----
+那一刻我意识到：**这不是"工具"问题，这是"操作系统"问题。**
 
-## 二、架构设计：为什么是这一套？
+于是我决定：不再忍受，我要造一个真正属于开发者的"开发操作系统"。
 
-这套架构不仅仅是堆砌工具，而是各司其职：
-
-1.  **WSL2 (核心内核)**：提供原生的 Linux 内核支持。由于它运行在 hypervisor 之上，文件 IO（在 Linux 内部）和网络性能几乎与原生无异。
-2.  **WezTerm (UI / 终端模拟器)**：放弃 Windows Terminal 的原因有三：Lua 配置可跨平台迁移、GPU 渲染极度丝滑、对富文本和图标的原生支持更佳。
-3.  **Zellij (平铺多窗管理)**：Tmux 虽然强大，但快捷键记忆曲线太陡。Zellij 提供了更现代的交互模式（如底部的快捷提示）和更强大的 `layout` 平铺引擎。
-4.  **Zsh (交互层)**：通过 `fzf` 和 `zoxide` 实现快速模糊搜索与智能路径跳转。
-
----
-
-## 三、底层基石：WSL2 的极简安装与性能调优
-
-不要仅仅运行 `wsl --install`，为了长效稳定，你需要关注两个配置点。
-
-### 1. 内存限制
-默认情况下，WSL2 会吃掉你 50% 甚至更多的内存。在 Windows 用户目录下创建 `.wslconfig`：
-
-```ini
-[wsl2]
-memory=16GB    # 限制最大占用，防止 Windows 侧卡死
-processors=8   # 分配核心数
-guiApplications=false # 如果不需要运行 Linux GUI 程序，可以关闭
-```
-
-### 2. 文件系统的黄金法则
-**切记：永远不要在 `/mnt/c/Users/...` 下进行高频代码操作。**
-把项目克隆到 WSL 内部的 `~/projects`。在 Linux 内部运行 `git status` 仅需 0.1s，而在挂载目录下可能需要 5s。
+经过 6 个月的迭代，**AI Dev Workstation** 诞生了。
 
 ---
 
-## 四、UI 与交互：WezTerm 与 Zellij 的深度定制
+## 一分钟看懂：它是什么？
 
-### 1. WezTerm：Lua 驱动的自由度
-WezTerm 的核心优势是它的 Lua 配置文件。以下是我解决“Ctrl+C/V 冲突”和“全屏透明”的关键配置片段：
+想象一下，一个命令 `of start`：
 
-```lua
-local wezterm = require 'wezterm'
-return {
-  default_domain = 'WSL:Ubuntu', -- 启动即入 WSL
-  font = wezterm.font('JetBrains Mono Nerd Font'),
-  font_size = 12.0,
-  window_background_opacity = 0.9, -- 适度的透明度
-  text_background_opacity = 1.0,
-  hide_tab_bar_if_only_one_tab = true, -- 让 Zellij 管理多标签，WezTerm 保持简洁
-  keys = {
-    -- 习惯 Windows 的 Ctrl+C/V
-    { key = 'C', mods = 'CTRL|SHIFT', action = wezterm.action.CopyTo 'Clipboard' },
-    { key = 'V', mods = 'CTRL|SHIFT', action = wezterm.action.PasteFrom 'Clipboard' },
-  },
-}
-```
+✨ 你的编辑器自动打开，定位到当前项目
+✨ 终端自动分成 4 个面板：
+- 左上：Claude AI（架构设计）
+- 右上：Codex AI（代码生成）
+- 左下：Gemini AI（文档查询）
+- 右下：Shell（git、服务、工具）
 
-### 2. Zellij：一键开启 AI 工作台
-Zellij 的 `layout` 功能是我最喜欢的。我可以定义一个 `ai_coding.kdl` 布局，一键启动时：左侧是编辑器，右侧是 Claude CLI，下方是运行中的服务日志。
+**一个屏幕，4 个 AI，同时为你工作。**
 
-```kdl
-// ~/.config/zellij/layouts/work.kdl
-layout {
-    pane split_direction="vertical" {
-        pane size="60%" edit="." // 主编辑区
-        pane {
-            pane command="claude" // AI 辅助区
-            pane command="npm" { args "run" "dev" } // 日志区
-        }
-    }
-    pane size=1 borderless=true {
-        plugin location="zellij:status-bar"
-    }
-}
-```
+![AI Workstation](https://github.com/qwerwanghao/ai-dev-workstation/raw/main/screenshots/ai-dev-workstation.png)
 
 ---
 
-## 五、实战场景：凌晨两点的快速排查
+## 为什么说它是"革命性"的？
 
-想象一个真实的场景：你正在排查一个生产环境的诡异 Bug。
+### 1️⃣ 多项目管理，秒级切换
 
-1.  **快速找回**：你不再需要去笔记里翻找那条复杂的 `grep` 命令。按下 `Ctrl+R`，`fzf` 瞬间通过历史预测帮你定位到那条带正则的搜索指令。
-2.  **多维视角**：在同一个 Zellij 会话中，你用 `Alt+N` 快速切分出一个 Pane，左边盯着实时日志，右边开一个 `claude config.yaml` 询问 AI 关于这个配置项的潜在风险。
-3.  **零摩擦跳转**：需要去另一个项目目录查代码？输入 `z my-project`，`zoxide` 会根据你的频率自动跳转到那个深埋在三层目录下的文件夹，无需一次次 `cd ..`。
+之前：每次切项目，都要重新打开编辑器、重新定位目录
+现在：`of use myproject`，一个命令，环境就绪
 
-**这种“流式”的体验，是零散的控制台窗口永远无法提供的。**
-
----
-
-## 六、没那么美好？WSL2 避坑指南 (必读)
-
-在折腾这套方案的过程中，我踩过的坑希望能帮你省下几个小时：
-
-### 1. 代理地狱
-WSL2 是通过虚拟网卡连接的，这意味着它和 Windows 的 IP 不同。如果你的代理软件在 Windows 侧，WSL2 经常连不上网。
-**方案**：在 `.zshrc` 中加入脚本，动态获取 Windows 的宿主机 IP：
 ```bash
-export hostip=$(cat /etc/resolv.conf | grep nameserver | awk '{print $2}')
-export https_proxy="http://${hostip}:7890" # 替换为你的代理端口
+# 注册项目（在项目目录下）
+of register myproject
+
+# 切换项目
+of use myproject
+
+# 开始工作（编辑器 + AI 全部就位）
+of start
 ```
 
-### 2. 剪贴板不同步
-在 Vim 或 Zellij 中复制，结果 Windows 贴不上？
-**方案**：安装 `win32yank.exe` 并将其软链接到 WSL 的 `/usr/local/bin`，这能让 Linux 的系统剪贴板与 Windows 无缝互通。
+### 2️⃣ AI 多开，协作编程
 
-### 3. 磁盘空间膨胀
-WSL2 的磁盘文件 (`ext4.vhdx`) 只会自动增加不会主动缩小。
-**方案**：定期使用 `Optimize-VHD` 指令进行手动动态瘦身，否则你会发现 C 盘莫名其妙少了 100G。
+之前：开一个 AI，问完关掉，再开另一个
+现在：4 个 AI 同时在线，各司其职
+
+- **Claude**：负责架构和复杂推理
+- **Codex**：负责代码片段生成
+- **Gemini**：负责文档和算法查询
+- **Shell**：负责 git、日志、工具操作
+
+### 3️⃣ JSON 配置，跨平台同步
+
+之前：Bash 脚本配置，换机器要重新配置
+现在：JSON 配置文件，Git 同步，到处可用
+
+```json
+{
+  "current": "myproject",
+  "default_editor": "antigravity",
+  "editors": {
+    "antigravity": "C:\\...\\Antigravity.exe",
+    "vscode": "C:\\...\\Code.exe"
+  },
+  "projects": {
+    "myproject": {
+      "win_path": "F:\\Git\\myproject",
+      "wsl_path": "/mnt/f/Git/myproject",
+      "editor": "antigravity"
+    }
+  }
+}
+```
+
+### 4️⃣ 一键安装，开箱即用
+
+```bash
+git clone https://github.com/ai-dev-workstation/ai-dev-workstation.git
+cd ai-dev-workstation
+./install.sh
+```
+
+5 分钟后，你的"开发操作系统"就绪。
 
 ---
 
-## 七、结语：工具是为了忘记工具
+## 技术栈：为什么是这 4 件套？
 
-我曾经沉迷于配置各种花哨的终端主题，但最后发现，真正高效的配置不是那个“看起来最酷”的，而是那个**最不打断你思路**的。
+| 组件 | 作用 | 为什么选它 |
+|------|------|-----------|
+| **WSL2** | Linux 内核 | 原生性能，不是虚拟机 |
+| **WezTerm** | 终端模拟器 | GPU 渲染，比 Windows Terminal 更丝滑 |
+| **Zellij** | 多窗管理 | 比 tmux 更现代，自带快捷键提示 |
+| **of** | 项目管理器 | 核心工具，本文主角 |
 
-通过 WSL2 + WezTerm + Zellij，我把原本割裂的开发环境变成了一个整体。现在的我，不再关心命令是运行在 Windows 还是 Linux，也不再为找不到某个历史窗口而烦恼。
+---
 
-**如果你也觉得当下的开发环境“不够顺手”，不如深挖下去，设计一套属于你自己的“开发操作系统”。**
+## 真实场景：它改变了什么？
+
+### 场景 1：紧急排查 Bug
+
+**之前**：
+1. 打开日志窗口
+2. 打开代码编辑器
+3. 打开 AI 问问题
+4. 来回切换，迷失在窗口海洋
+
+**现在**：
+```bash
+of start
+```
+一个命令，所有窗口就位，左右分屏，一目了然。
+
+### 场景 2：多项目并行
+
+**之前**：
+- 项目 A 需要前端、后端两个窗口
+- 项目 B 又要两个窗口
+- 桌面上 6-7 个窗口，不知道哪个是哪个
+
+**现在**：
+```bash
+of use project-a
+of start
+```
+每个项目独立环境，秒级切换。
+
+### 场景 3：AI 协作编程
+
+**之前**：
+- 问 Claude 架构，关掉
+- 问 Codex 代码，关掉
+- 问 Gemini 文档，关掉
+- 对话记录全丢失
+
+**现在**：
+4 个 AI 同时在线，对话记录永久保存，随时回顾。
+
+---
+
+## 开源，但值得一杯咖啡
+
+这个项目我已经用了半年，每天用它工作 8+ 小时。
+
+它让我的开发效率提升了 **至少 30%**。
+
+现在我把它开源出来，希望也能帮到你。
+
+如果这个项目对你有帮助：
+1. ⭐ **GitHub Star** - 让更多人看到
+2. ☕ **请我喝杯咖啡** - 支持持续开发
+
+[GitHub: github.com/ai-dev-workstation/ai-dev-workstation](https://github.com/ai-dev-workstation/ai-dev-workstation)
+
+---
+
+## 安装只需 3 步
+
+```bash
+# 1. 克隆仓库
+git clone https://github.com/ai-dev-workstation/ai-dev-workstation.git
+cd ai-dev-workstation
+
+# 2. 运行安装
+./install.sh
+
+# 3. 注册你的项目
+cd your-project
+of register myproject
+
+# 4. 开始使用
+of start
+```
+
+**5 分钟后，你会有一个全新的开发体验。**
+
+---
+
+## 写在最后
+
+我造这个工具，不是为了"炫技"。
+
+而是因为我真的厌倦了：
+❌ 在十几个窗口间来回切换
+❌ 每次换项目都要重新配置环境
+❌ AI 对话记录找不到了
+❌ 终端配置复杂到需要写文档
+
+**我想要的是一个"开机即用，忘记配置"的开发环境。**
+
+现在，我把它交给你。
+
+如果它也帮到了你，可以考虑：
+- ⭐ 点个 Star
+- 🍉 介绍一下给朋友
+- ☕ 请我喝杯咖啡
+
+你的支持，是我继续开源的动力。
+
+---
+
+<div align="center">
+
+**用 ❤️ 打造，献给每一个不甘平庸的开发者**
+
+[⬆ 回到顶部](#)
+
+</div>
