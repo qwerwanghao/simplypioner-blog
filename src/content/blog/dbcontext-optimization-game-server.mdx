@@ -16,16 +16,16 @@ tags:
 
 ## 一、问题背景
 
-多人在线游戏场景中,登录是玩家体验的第一道门槛。
+多人在线游戏场景中，登录是玩家体验的第一道门槛。
 
-某日测试,两台客户端同时点击登录按钮,服务端直接抛出异常:
+某日测试，两台客户端同时点击登录按钮，服务端直接抛出异常：
 
 ```
-SqlException: 执行超时,操作在完成之前已超时
+SqlException: 执行超时，操作在完成之前已超时
 Error Number: -2
 ```
 
-服务器直接拒绝服务,玩家无法进入游戏。
+服务器直接拒绝服务，玩家无法进入游戏。
 
 ## 二、问题定位
 
@@ -34,19 +34,19 @@ Error Number: -2
 ```
 Message handler exception:
 System.Data.SqlClient.SqlException (0x80131904):
-执行超市,操作在完成之前已超时
+执行超市，操作在完成之前已超时
 --->
 System.ComponentModel.Win32Exception (0x80004005): 等待的操作超时
 ```
 
-关键信息:
-- **超时错误**:两个登录请求几乎同时到达
-- **Error Number: -2**:SQL Server 超时标志
-- **涉及操作**:登录时的用户查询
+关键信息：
+- **超时错误**：两个登录请求几乎同时到达
+- **Error Number: -2**：SQL Server 超时标志
+- **涉及操作**：登录时的用户查询
 
 ### 2.2 代码审计
 
-发现服务端的 `DBService` 采用了**单例模式**:
+发现服务端的 `DBService` 采用了**单例模式**：
 
 ```csharp
 class DBService : Singleton<DBService>
@@ -62,7 +62,7 @@ class DBService : Singleton<DBService>
 }
 ```
 
-而 `UserService` 中所有数据库操作都共享这个上下文:
+而 `UserService` 中所有数据库操作都共享这个上下文：
 
 ```csharp
 TUser user = DBService.Instance.Entities.Users
@@ -70,21 +70,19 @@ TUser user = DBService.Instance.Entities.Users
     .FirstOrDefault();
 ```
 
-<Callout type="danger">
-**问题根源**:
+**问题根源**：
 
 | 问题 | 影响 |
 |------|------|
 | 单例 DbContext | 多线程并发时共享同一个上下文对象 |
-| 无连接池配置 | 默认最大 100 连接,高并发不够 |
-| 长时间持有连接 | 上下文不释放,连接资源耗尽 |
-</Callout>
+| 无连接池配置 | 默认最大 100 连接，高并发不够 |
+| 长时间持有连接 | 上下文不释放，连接资源耗尽 |
 
 ## 三、解决方案
 
-### 3.1 架构调整:请求级 DbContext
+### 3.1 架构调整：请求级 DbContext
 
-将 `DBService` 从单例改为**工厂模式**,每次数据库操作创建新上下文:
+将 `DBService` 从单例改为**工厂模式**，每次数据库操作创建新上下文：
 
 ```csharp
 class DBService : Singleton<DBService>
@@ -101,7 +99,7 @@ class DBService : Singleton<DBService>
 }
 ```
 
-所有数据库操作使用 `using` 确保释放:
+所有数据库操作使用 `using` 确保释放：
 
 ```csharp
 using (var context = DBService.Instance.GetContext())
@@ -115,33 +113,33 @@ using (var context = DBService.Instance.GetContext())
 
 ### 3.2 连接池配置优化
 
-在 `App.config` 中增加连接池配置:
+在 `App.config` 中增加连接池配置：
 
 ```xml
 connectionString="...;Max Pool Size=200;Connection Timeout=30;..."
 ```
 
-**参数说明**:
+**参数说明**：
 
 | 参数 | 默认值 | 本项目设置 | 含义 |
 |------|--------|------------|------|
 | Max Pool Size | 100 | 200 | 最大连接池数量 |
-| Connection Timeout | 15 | 30 | 连接超时时间(秒) |
-| Command Timeout | 无(无限) | 60 | SQL 执行超时(代码设置) |
+| Connection Timeout | 15 | 30 | 连接超时时间（秒） |
+| Command Timeout | 无（无限） | 60 | SQL 执行超时（代码设置） |
 
 ### 3.3 Session 管理优化
 
-登录时不再保存整个 EF 对象,而是只存 ID:
+登录时不再保存整个 EF 对象，而是只存 ID：
 
 ```csharp
-// 之前:保存整个 User 对象(依赖共享上下文)
+// 之前：保存整个 User 对象（依赖共享上下文）
 sender.Session.User = user;
 
-// 之后:只保存 UserId(每次请求重新加载)
+// 之后：只保存 UserId（每次请求重新加载）
 sender.Session.UserId = user.ID;
 ```
 
-后续请求根据 UserId 重新查询:
+后续请求根据 UserId 重新查询：
 
 ```csharp
 using (var context = DBService.Instance.GetContext())
@@ -153,7 +151,7 @@ using (var context = DBService.Instance.GetContext())
 
 ## 四、技术原理
 
-### 4.1 为什么单例 DbContext 有问题?
+### 4.1 为什么单例 DbContext 有问题？
 
 ```
 ┌─────────────────────────────────────────────────────────┐
@@ -167,12 +165,10 @@ using (var context = DBService.Instance.GetContext())
          并发冲突 + 连接耗尽 = 超时
 ```
 
-<Callout type="warning">
-**DbContext 不是线程安全的**:
+**DbContext 不是线程安全的**：
 - 多个线程同时操作同一个上下文
-- 状态跟踪混乱(同一实体被不同线程修改)
+- 状态跟踪混乱（同一实体被不同线程修改）
 - 连接池被长时间占用
-</Callout>
 
 ### 4.2 请求级上下文的优势
 
@@ -185,15 +181,13 @@ using (var context = DBService.Instance.GetContext())
 │  Thread 3: New DbContext → Insert → Dispose → 连接释放   │
 └─────────────────────────────────────────────────────────┘
                     ↓
-         每个请求独立,连接快速复用
+         每个请求独立，连接快速复用
 ```
 
-<Callout type="tip">
-**核心优势**:
-1. **线程安全**:每个请求独立上下文,无竞争
-2. **连接复用**:`Dispose` 后连接归还连接池
-3. **状态清晰**:短生命周期避免脏数据
-</Callout>
+**核心优势**：
+1. **线程安全**：每个请求独立上下文，无竞争
+2. **连接复用**：`Dispose` 后连接归还连接池
+3. **状态清晰**：短生命周期避免脏数据
 
 ### 4.3 using 语句的作用
 
@@ -204,7 +198,7 @@ using (var context = new ExtremeWorldEntities())
 }  // ← 这里自动调用 context.Dispose()
 ```
 
-**等价于**:
+**等价于**：
 
 ```csharp
 var context = new ExtremeWorldEntities();
@@ -233,9 +227,9 @@ finally
 
 | 场景 | 推荐方式 | 原因 |
 |------|----------|------|
-| Web API 请求级 | 每次请求创建 | 短生命周期,避免并发 |
-| 桌面应用 | 操作级 `using` | 明确边界,手动释放 |
-| **不要** | 单例共享 | 线程不安全,状态泄漏 |
+| Web API 请求级 | 每次请求创建 | 短生命周期，避免并发 |
+| 桌面应用 | 操作级 `using` | 明确边界，手动释放 |
+| **不要** | 单例共享 | 线程不安全，状态泄漏 |
 
 ### 6.2 连接字符串参数
 
@@ -244,29 +238,27 @@ finally
 data source=服务器;                    # 数据库服务器地址
 Initial Catalog=数据库名;              # 数据库名
 Integrated Security=SSPI;              # Windows 集成认证
-Max Pool Size=200;                     # 最大连接池(根据并发量调整)
-Connection Timeout=30;                 # 连接超时(秒)
+Max Pool Size=200;                     # 最大连接池（根据并发量调整）
+Connection Timeout=30;                 # 连接超时（秒）
 ```
 
-<Callout type="important">
-**注意**:`Command Timeout` 不能放在连接字符串中,需要代码设置:
+**注意**：`Command Timeout` 不能放在连接字符串中，需要代码设置：
 
 ```csharp
 context.Database.CommandTimeout = 60;
 ```
-</Callout>
 
 ### 6.3 代码规范
 
 ```csharp
-// ✅ 正确:使用 using 确保释放
+// ✅ 正确：使用 using 确保释放
 using (var context = DBService.Instance.GetContext())
 {
     var user = context.Users.Find(id);
     context.SaveChanges();
 }
 
-// ✅ 正确:工厂方法封装
+// ✅ 正确：工厂方法封装
 public User GetUser(long userId)
 {
     using (var context = _dbService.GetContext())
@@ -275,10 +267,10 @@ public User GetUser(long userId)
     }
 }
 
-// ❌ 错误:单例共享上下文
+// ❌ 错误：单例共享上下文
 public User GetUser(long userId)
 {
-    return DBService.Instance.Entities.Users.Find(userId);  // 共享!线程不安全!
+    return DBService.Instance.Entities.Users.Find(userId);  // 共享！线程不安全！
 }
 ```
 
@@ -306,9 +298,9 @@ SELECT * FROM sys.dm_exec_requests WHERE blocking_session_id > 0;
 
 ### 7.3 监控指标建议
 
-- **连接池指标**:`Available Connections`、`Waiting Tasks`
-- **数据库指标**:`Query Duration`、`Lock Waits`
-- **应用指标**:`DbContext Created`、`DbContext Disposed`
+- **连接池指标**：`Available Connections`、`Waiting Tasks`
+- **数据库指标**：`Query Duration`、`Lock Waits`
+- **应用指标**：`DbContext Created`、`DbContext Disposed`
 
 ## 八、参考资源
 
@@ -318,8 +310,8 @@ SELECT * FROM sys.dm_exec_requests WHERE blocking_session_id > 0;
 
 ---
 
-**写在最后**:数据库连接管理是后端开发的「隐形冠军」。一个看似简单的超时问题,背后可能隐藏着架构设计的缺陷。理解底层原理,才能在生产环境中游刃有余。
+**写在最后**：数据库连接管理是后端开发的「隐形冠军」。一个看似简单的超时问题，背后可能隐藏着架构设计的缺陷。理解底层原理，才能在生产环境中游刃有余。
 
 ---
 
-*本文基于真实项目优化经历,文中代码均来自生产环境。*
+*本文基于真实项目优化经历，文中代码均来自生产环境。*
