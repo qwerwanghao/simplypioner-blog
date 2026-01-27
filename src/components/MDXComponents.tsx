@@ -72,7 +72,7 @@ const CustomCode = ({ children, className, ...props }: React.HTMLAttributes<HTML
 
 // Callout Component - Apple Style
 interface CalloutProps {
-    type?: 'info' | 'warning' | 'tip' | 'danger';
+    type?: 'info' | 'warning' | 'tip' | 'danger' | 'important';
     children: React.ReactNode;
 }
 
@@ -97,6 +97,11 @@ const Callout = ({ type = 'info', children }: CalloutProps) => {
             bg: 'rgba(255, 59, 48, 0.08)',
             border: 'rgba(255, 59, 48, 0.3)',
             icon: '🚨'
+        },
+        important: {
+            bg: 'rgba(175, 82, 222, 0.08)',
+            border: 'rgba(175, 82, 222, 0.3)',
+            icon: '📌'
         },
     };
 
