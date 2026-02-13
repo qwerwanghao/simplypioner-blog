@@ -45,6 +45,7 @@ const CustomImage = ({ src, alt, ...props }: React.ImgHTMLAttributes<HTMLImageEl
                     alt={alt || ''}
                     width={800}
                     height={450}
+                    unoptimized={true}
                     className="rounded-xl max-w-full h-auto object-cover"
                     style={{
                          maxWidth: '100%',
