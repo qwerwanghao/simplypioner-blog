@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 // Custom Link Component
 const CustomLink = ({ href, children, ...props }: React.AnchorHTMLAttributes<HTMLAnchorElement>) => {
@@ -22,14 +23,36 @@ const CustomLink = ({ href, children, ...props }: React.AnchorHTMLAttributes<HTM
 
 // Custom Image Component
 const CustomImage = ({ src, alt, ...props }: React.ImgHTMLAttributes<HTMLImageElement>) => {
+    if (!src) return null;
+    
+    // Check if it's an external URL
+    const isExternal = src.startsWith('http');
+    
     return (
-        <span className="block my-8">
-            <img
-                src={src}
-                alt={alt || ''}
-                className="rounded-xl max-w-full h-auto"
-                {...props}
-            />
+        <span className="block my-8 relative w-full h-auto flex justify-center">
+            {isExternal ? (
+                 // Fallback for external images if domain not configured in next.config.js
+                 // eslint-disable-next-line @next/next/no-img-element
+                <img
+                    src={src}
+                    alt={alt || ''}
+                    className="rounded-xl max-w-full h-auto"
+                    {...props}
+                />
+            ) : (
+                <Image
+                    src={src}
+                    alt={alt || ''}
+                    width={800}
+                    height={450}
+                    className="rounded-xl max-w-full h-auto object-cover"
+                    style={{
+                         maxWidth: '100%',
+                         height: 'auto',
+                    }}
+                    {...props}
+                />
+            )}
         </span>
     );
 };
