@@ -6,6 +6,7 @@ import { MDXRemote, MDXRemoteSerializeResult } from 'next-mdx-remote';
 import { serialize } from 'next-mdx-remote/serialize';
 import rehypeHighlight from 'rehype-highlight';
 import rehypeSlug from 'rehype-slug';
+import remarkGfm from 'remark-gfm';
 import Layout from '@/components/Layout';
 import { MDXComponents } from '@/components/MDXComponents';
 import Comments from '@/components/Comments';
@@ -135,6 +136,7 @@ export const getStaticProps = async ({ params }: { params: { slug: string } }) =
 
   const mdxSource = await serialize(post.content, {
     mdxOptions: {
+      remarkPlugins: [remarkGfm],
       rehypePlugins: [
         rehypeHighlight,
         rehypeSlug,
